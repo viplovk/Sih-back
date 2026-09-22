@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: algoriot-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
+      - key: ENVIRONMENT
+        value: production
+      - key: USE_DEMO_MODE
+        value: "true"
+      - key: OPEN_METEO_BASE_URL
+        value: https://api.open-meteo.com
+      - key: FRONTEND_URL
+        value: https://sih-fr-v.vercel.app
+      - key: LOG_LEVEL
+        value: INFO

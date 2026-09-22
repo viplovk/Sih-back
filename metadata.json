@@ -1,0 +1,6 @@
+{
+  "name": "ALGORIOT Backend",
+  "description": "Production-ready FastAPI backend for ALGORIOT (SIH26081): Hybrid AI-NWP Multi-Model Forecast Blending System for Disaster Management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
