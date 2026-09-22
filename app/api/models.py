@@ -2,6 +2,7 @@
 
 from typing import Optional
 from fastapi import APIRouter, Query
+from app.core.config import settings
 from app.schemas.models import ModelsResponse, ModelContributionResponse
 from app.services.model_service import model_service
 from app.utils.validation import validate_coordinates
@@ -26,12 +27,21 @@ async def list_models() -> ModelsResponse:
     description="Calculates meta-learner weights and scientific attribution reasoning for a location and forecast horizon.",
 )
 async def get_model_contribution(
-    location: Optional[str] = Query(default="Delhi", description="Named Indian location"),
+    location: Optional[str] = Query(default="Delhi", description="Named location"),
     lat: Optional[float] = Query(default=None, description="Latitude"),
     lon: Optional[float] = Query(default=None, description="Longitude"),
     time: Optional[str] = Query(default=None, description="ISO timestamp"),
     forecast_hour: Optional[int] = Query(default=24, description="Forecast horizon in hours"),
+    mode: Optional[str] = Query(default=None, description="Operational mode ('demo' to test mock calibration)"),
 ) -> ModelContributionResponse:
+    # Honest scientific reporting: if live model calibration is not available in production, return available=False
+    if not settings.USE_DEMO_MODE and mode != "demo":
+        return ModelContributionResponse(
+            available=False,
+            message="Operational hybrid AI-NWP weight calibration requires real-time model verification dataset.",
+            source="open-meteo",
+        )
+
     validated_lat, validated_lon, loc_name = validate_coordinates(lat, lon, location)
 
     return model_service.calculate_contribution(

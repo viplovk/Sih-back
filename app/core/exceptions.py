@@ -55,6 +55,35 @@ class WeatherProviderError(AlgoriotException):
         )
 
 
+class WeatherDataUnavailableError(AlgoriotException):
+    """Raised when live weather data cannot be fetched and no cache exists."""
+
+    def __init__(
+        self,
+        message: str = "Live weather data is temporarily unavailable.",
+        source: str = "open-meteo",
+        retryable: bool = True,
+        request_id: Optional[str] = None,
+    ):
+        super().__init__(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            code="weather_data_unavailable",
+            message=message,
+            request_id=request_id,
+        )
+        self.source = source
+        self.retryable = retryable
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "error": "weather_data_unavailable",
+            "message": self.message,
+            "source": self.source,
+            "retryable": self.retryable,
+            "request_id": self.request_id,
+        }
+
+
 class LocationNotFoundError(AlgoriotException):
     """Raised when requested location is unknown or out of bounds."""
 

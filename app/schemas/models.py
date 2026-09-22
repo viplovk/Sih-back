@@ -28,11 +28,14 @@ class ModelWeightExplanation(BaseModel):
 
 
 class ModelContributionResponse(BaseModel):
-    location: str = Field(..., json_schema_extra={"example": "Delhi"})
-    time: str = Field(..., json_schema_extra={"example": "2026-09-22T12:00:00Z"})
-    regime: str = Field(..., json_schema_extra={"example": "NORMAL"})
-    weights: Dict[str, float] = Field(
-        ...,
+    available: bool = Field(default=True, json_schema_extra={"example": True})
+    message: Optional[str] = None
+    source: Optional[str] = None
+    location: Optional[str] = Field(default=None, json_schema_extra={"example": "Delhi"})
+    time: Optional[str] = Field(default=None, json_schema_extra={"example": "2026-09-22T12:00:00Z"})
+    regime: Optional[str] = Field(default=None, json_schema_extra={"example": "NORMAL"})
+    weights: Optional[Dict[str, float]] = Field(
+        default=None,
         json_schema_extra={"example": {"Open-Meteo": 0.45, "AI-Demo": 0.30, "NWP-Demo": 0.25}}
     )
     reasoning: Optional[ModelWeightExplanation] = None

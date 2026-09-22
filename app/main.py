@@ -12,6 +12,7 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
@@ -61,6 +62,7 @@ app.add_middleware(
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 
 # Structured Request Logging Middleware
@@ -147,7 +149,11 @@ async def root():
             "models_contribution": "/api/v1/models/contribution",
             "extremes": "/api/v1/extremes",
             "uncertainty": "/api/v1/uncertainty",
+            "map_timeline": "/api/v1/map/timeline",
+            "map_wind": "/api/v1/map/wind",
             "map_temperature": "/api/v1/map/temperature",
+            "map_precipitation": "/api/v1/map/precipitation",
+            "map_air_quality": "/api/v1/map/air-quality",
         },
     }
 

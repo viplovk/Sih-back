@@ -12,25 +12,29 @@ router = APIRouter(prefix="/api/v1", tags=["Forecast"])
 @router.get(
     "/forecast",
     response_model=ForecastResponse,
-    summary="Get multi-model blended weather forecast",
-    description="Generates hybrid forecast blending NWP, AI models, and Open-Meteo composite with dynamic weighting and bias correction.",
+    summary="Get hourly weather forecast",
+    description="Retrieve real hourly forecast frames directly from Open-Meteo with verified timestamps.",
 )
 async def get_forecast(
     lat: Optional[float] = Query(default=None, description="Latitude (-90.0 to 90.0)"),
     lon: Optional[float] = Query(default=None, description="Longitude (-180.0 to 180.0)"),
-    hours: Optional[int] = Query(default=None, description="Forecast horizon in hours (alias for forecast_hours)"),
-    forecast_hours: Optional[int] = Query(default=72, description="Forecast horizon in hours (1 to 168)"),
-    time: Optional[str] = Query(default=None, description="Target timestamp (optional)"),
-    location: Optional[str] = Query(default=None, description="Named Indian location (e.g. Delhi, Mumbai)"),
+    latitude: Optional[float] = Query(default=None, description="Latitude alias"),
+    longitude: Optional[float] = Query(default=None, description="Longitude alias"),
+    hours: Optional[int] = Query(default=None, description="Forecast horizon in hours"),
+    forecast_hours: Optional[int] = Query(default=48, description="Forecast horizon in hours (min 24)"),
+    location: Optional[str] = Query(default=None, description="Named location (e.g. Delhi, Mumbai)"),
 ) -> ForecastResponse:
-    validated_lat, validated_lon, loc_name = validate_coordinates(lat, lon, location)
-    horizon = validate_forecast_hours(hours=hours, forecast_hours=forecast_hours)
+    effective_lat = latitude if latitude is not None else lat
+    effective_lon = longitude if longitude is not None else lon
+    validated_lat, validated_lon, loc_name = validate_coordinates(effective_lat, effective_lon, location)
 
-    resp, _, _, _, _ = await forecast_service.get_forecast(
+    raw_horizon = hours if hours is not None else forecast_hours
+    effective_horizon = max(24, min(raw_horizon or 48, 168))
+
+    return await forecast_service.get_forecast(
         lat=validated_lat,
         lon=validated_lon,
-        forecast_hours=horizon,
+        forecast_hours=effective_horizon,
         location_name=loc_name,
-        blend=True,
+        blend=False,
     )
-    return resp
